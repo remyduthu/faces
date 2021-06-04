@@ -8,7 +8,8 @@ import (
 
 const FILTER_TAG = "faces"
 
-// TODO: Document the function
+// FilterWithTags resets the...
+// input must be a pointer to a structure.
 func FilterWithTags(input interface{}, tags ...string) {
 	if tags == nil {
 		return
