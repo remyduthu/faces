@@ -8,8 +8,8 @@ import (
 
 const FILTER_TAG = "faces"
 
-// FilterWithTags resets the...
-// input must be a pointer to a structure.
+// FilterWithTags resets the values of fields of the input based on tags. It
+// panics if the input parameter is not an adress to a structure.
 func FilterWithTags(input interface{}, tags ...string) {
 	if tags == nil {
 		return
@@ -31,40 +31,35 @@ func filterValue(v reflect.Value, tags ...string) {
 		return
 	}
 
-	// Get the type of the value
-	t := v.Type()
-
 	// Loop over the fields of the structure
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-
-		// We cannot access the value of unexported fields
-		if field.PkgPath != "" {
-			continue
-		}
-
-		fieldTags := field.Tag.Get(FILTER_TAG)
-
-		// Keep the original value if the field has no tags
-		if fieldTags == "" {
-			continue
-		}
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
 
 		// Recursively filter nested structures
-		if field.Type.Kind() == reflect.Struct {
-			FilterWithTags(v.Field(i), tags...)
+		if field.Kind() == reflect.Struct {
+			filterValue(v.Field(i), tags...)
 		}
 
 		// Filter slice elements
-		if field.Type.Kind() == reflect.Slice {
+		if field.Kind() == reflect.Slice {
 			for j := 0; j < v.Field(i).Len(); j++ {
-				FilterWithTags(v.Field(i).Index(j), tags...)
+				filterValue(v.Field(i).Index(j), tags...)
 			}
 		}
 
-		// Exclude the field if it does not match any of the given tags
-		if !matchTags(strings.Split(fieldTags, ","), tags) {
-			v.Field(i).Set(reflect.New(field.Type).Elem())
+		structField := v.Type().Field(i)
+
+		// We cannot access the value of unexported fields
+		if structField.PkgPath != "" {
+			continue
+		}
+
+		fieldTags := structField.Tag.Get(FILTER_TAG)
+
+		// Keep the original value if the field has no tags and exclude the field if
+		// it does not match any of the given tags
+		if fieldTags != "" && !matchTags(strings.Split(fieldTags, ","), tags) {
+			v.Field(i).Set(reflect.New(structField.Type).Elem())
 		}
 	}
 }
