@@ -6,11 +6,11 @@ import (
 	"strings"
 )
 
-const FILTER_TAG = "faces"
+const filterTag = "faces"
 
-// FilterWithTags resets the values of fields of the input based on tags. It
-// panics if the input parameter is not an adress to a structure.
-func FilterWithTags(input interface{}, tags ...string) {
+// Reveal reveals a face in the input based on tags. It panics if the input
+// parameter is not an adress to a structure.
+func Reveal(input interface{}, tags ...string) {
 	if tags == nil {
 		return
 	}
@@ -54,7 +54,7 @@ func filterValue(v reflect.Value, tags ...string) {
 			continue
 		}
 
-		fieldTags := structField.Tag.Get(FILTER_TAG)
+		fieldTags := structField.Tag.Get(filterTag)
 
 		// Keep the original value if the field has no tags and exclude the field if
 		// it does not match any of the given tags

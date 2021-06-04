@@ -21,7 +21,7 @@ user := &User{
 }
 
 // Filter the user
-faces.FilterWithTags(user, "public")
+faces.Reveal(user, "public")
 
 fmt.Printf("%#v", user)
 // Output:
@@ -45,7 +45,7 @@ user := &User{
 }
 
 // Filter the user
-faces.FilterWithTags(user, "public")
+faces.Reveal(user, "public")
 
 // Convert the user to JSON
 b, _ := json.Marshal(user)

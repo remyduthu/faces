@@ -27,7 +27,7 @@ func (suite *facesTestSuite) TestShouldNotFilter() {
 		expected = actual
 	)
 
-	FilterWithTags(actual, "private")
+	Reveal(actual, "private")
 
 	assert.Equal(suite.T(), expected, actual)
 }
@@ -41,7 +41,7 @@ func (suite *facesTestSuite) TestShouldNotFilterSomethingElseThanAStructure() {
 	)
 
 	// Will do nothing
-	FilterWithTags(actual, "public")
+	Reveal(actual, "public")
 
 	assert.Equal(suite.T(), expected, actual)
 }
@@ -55,7 +55,7 @@ func (suite *facesTestSuite) TestShouldNotFilterWithoutTags() {
 		expected = actual
 	)
 
-	FilterWithTags(actual)
+	Reveal(actual)
 
 	assert.Equal(suite.T(), expected, actual)
 }
@@ -72,7 +72,7 @@ func (suite *facesTestSuite) TestShouldFilter() {
 		}
 	)
 
-	FilterWithTags(actual, "public")
+	Reveal(actual, "public")
 
 	assert.Equal(suite.T(), expected, actual)
 }
@@ -86,7 +86,7 @@ func (suite *facesTestSuite) TestShouldFilterMultipleTags() {
 		expected = actual
 	)
 
-	FilterWithTags(actual, "public", "private")
+	Reveal(actual, "public", "private")
 
 	assert.Equal(suite.T(), expected, actual)
 }
@@ -117,7 +117,7 @@ func (suite *facesTestSuite) TestShouldFilterNestedStructure() {
 		}
 	)
 
-	FilterWithTags(actual, "public")
+	Reveal(actual, "public")
 
 	assert.Equal(suite.T(), expected, actual)
 }
@@ -154,7 +154,7 @@ func (suite *facesTestSuite) TestShouldFilterArrayOfStructures() {
 		}
 	)
 
-	FilterWithTags(actual, "public")
+	Reveal(actual, "public")
 
 	assert.Equal(suite.T(), expected, actual)
 }
