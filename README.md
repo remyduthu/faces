@@ -1,5 +1,7 @@
 # 🌓 Faces
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/remydt/faces.svg)](https://pkg.go.dev/github.com/remydt/faces)
+
 Faces filters a structure using field tags. This is useful when you want to
 create several versions of the same structure without duplicating it. A use case
 could be when creating an API and not wanting to provide private information to
