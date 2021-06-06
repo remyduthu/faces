@@ -1,6 +1,6 @@
 # 🌓 Faces
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/remydt/faces.svg)](https://pkg.go.dev/github.com/remydt/faces)
+[![GoReference](https://pkg.go.dev/badge/github.com/remydt/faces.svg)](https://pkg.go.dev/github.com/remydt/faces)
 
 Faces filters a structure using field tags. This is useful when you want to
 create several versions of the same structure without duplicating it. A use case
@@ -9,7 +9,8 @@ end users.
 
 ## Usage
 
-A simple example can be:
+You can find many examples in the [test file](./faces_test.go) but here is a
+simple one:
 
 ```go
 // A simple user structure
@@ -61,18 +62,22 @@ fmt.Println(string(b))
 
 ## Benchmarks
 
-Here are the results of a benchmark executed on my laptop. The results do not represent an absolute truth but will allow me not to regress during future updates.
+Here are the results of a benchmark executed on my laptop. The results do not
+represent an absolute truth but will allow me not to regress during future
+updates.
 
 ```
 goos: darwin
 goarch: amd64
 pkg: github.com/remydt/faces
 cpu: Intel(R) Core(TM) i7-8559U CPU @ 2.70GHz
-BenchmarkFaces-8                                  	 5030667	       231.3 ns/op	      40 B/op	       4 allocs/op
-BenchmarkFacesWithNestedStructure-8               	 2031132	       599.7 ns/op	     112 B/op	      10 allocs/op
-BenchmarkFacesWithArrayOfStructures-8             	 1724448	       686.8 ns/op	     120 B/op	      11 allocs/op
-BenchmarkFacesWithoutTags-8                       	534643616	         2.242 ns/op	       0 B/op	       0 allocs/op
-BenchmarkFacesWithSomethingElseThanAStructure-8   	129993452	         9.237 ns/op	       0 B/op	       0 allocs/op
+BenchmarkReveal-8                                  	 5044090	       243.2 ns/op	      40 B/op	       4 allocs/op
+BenchmarkRevealWithSlice-8                         	 2272608	       515.0 ns/op	     104 B/op	       9 allocs/op
+BenchmarkRevealWithMap-8                           	 1452736	       825.9 ns/op	     256 B/op	      12 allocs/op
+BenchmarkRevealWithNestedStructure-8               	 2004470	       596.9 ns/op	     112 B/op	      10 allocs/op
+BenchmarkRevealWithArrayOfStructures-8             	 1725184	       699.8 ns/op	     120 B/op	      11 allocs/op
+BenchmarkRevealWithoutTags-8                       	537072181	         2.258 ns/op	       0 B/op	       0 allocs/op
+BenchmarkRevealWithSomethingElseThanAStructure-8   	100000000	        10.50 ns/op	       0 B/op	       0 allocs/op
 PASS
 coverage: 100.0% of statements
 ```

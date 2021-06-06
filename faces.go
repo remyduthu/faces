@@ -6,10 +6,18 @@ import (
 	"strings"
 )
 
-const filterTag = "faces"
+const revealTag = "faces"
 
-// Reveal reveals a face in the input based on tags. It panics if the input
-// parameter is not an adress to a structure.
+// Reveal reveals faces of the input based on tags. The input can be:
+//
+// - A pointer to a structure. In this case, the function will be applied
+// directly to the structure.
+//
+// - An array or a slice. In this case, the function will be applied to each
+// element.
+//
+// - A map. In this case, the function will be applied to each value (of a
+// key/value pair).
 //
 // Examples of struct field tags and their meanings:
 //
@@ -28,16 +36,30 @@ func Reveal(input interface{}, tags ...string) {
 
 	v := reflect.ValueOf(input)
 
-	filterValue(v, tags...)
+	revealValue(v, tags...)
 }
 
-func filterValue(v reflect.Value, tags ...string) {
+func revealValue(v reflect.Value, tags ...string) {
 	// Get the underlying elements if the value is a pointer
 	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
 
-	// Make sure that the value is a structure
+	// If v is an array or a slice, reveal each element
+	if v.Kind() == reflect.Array || v.Kind() == reflect.Slice {
+		for i := 0; i < v.Len(); i++ {
+			revealValue(v.Index(i), tags...)
+		}
+	}
+
+	// If v is a map, reveal each value
+	if v.Kind() == reflect.Map {
+		for _, vElement := range v.MapKeys() {
+			revealValue(v.MapIndex(vElement), tags...)
+		}
+	}
+
+	// Finally, make sure that the value is a structure
 	if v.Kind() != reflect.Struct {
 		return
 	}
@@ -46,31 +68,29 @@ func filterValue(v reflect.Value, tags ...string) {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
 
-		// Recursively filter nested structures
-		if field.Kind() == reflect.Struct {
-			filterValue(v.Field(i), tags...)
-		}
-
-		// Filter slice elements
-		if field.Kind() == reflect.Slice {
-			for j := 0; j < v.Field(i).Len(); j++ {
-				filterValue(v.Field(i).Index(j), tags...)
-			}
+		// Recursively reveal nested objects
+		if field.Kind() == reflect.Array ||
+			field.Kind() == reflect.Map ||
+			field.Kind() == reflect.Slice ||
+			field.Kind() == reflect.Struct {
+			revealValue(field, tags...)
 		}
 
 		structField := v.Type().Field(i)
 
-		// We cannot access the value of unexported fields
+		// Unexported fields are not accessible
 		if structField.PkgPath != "" {
 			continue
 		}
 
-		fieldTags := structField.Tag.Get(filterTag)
+		fieldTags := structField.Tag.Get(revealTag)
 
-		// Keep the original value if the field has no tags and exclude the field if
+		// Keep the original value if the field has no tags and reset the field if
 		// it does not match any of the given tags
-		if fieldTags != "" && !matchTags(strings.Split(fieldTags, ","), tags) {
-			v.Field(i).Set(reflect.New(structField.Type).Elem())
+		if field.CanSet() &&
+			fieldTags != "" &&
+			!matchTags(strings.Split(fieldTags, ","), tags) {
+			field.Set(reflect.New(structField.Type).Elem())
 		}
 	}
 }

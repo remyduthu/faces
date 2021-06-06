@@ -27,7 +27,7 @@ type user struct {
 	unexportedField string
 }
 
-func (suite *facesTestSuite) TestShouldNotFilter() {
+func (suite *facesTestSuite) TestShouldNotReveal() {
 	var (
 		actual = &user{
 			Email:           "foo&bar.com",
@@ -42,7 +42,7 @@ func (suite *facesTestSuite) TestShouldNotFilter() {
 	assert.Equal(suite.T(), expected, actual)
 }
 
-func (suite *facesTestSuite) TestShouldNotFilterSomethingElseThanAStructure() {
+func (suite *facesTestSuite) TestShouldNotRevealSomethingElseThanAStructure() {
 	var (
 		actual = &map[string]string{
 			"a": "b",
@@ -56,7 +56,7 @@ func (suite *facesTestSuite) TestShouldNotFilterSomethingElseThanAStructure() {
 	assert.Equal(suite.T(), expected, actual)
 }
 
-func (suite *facesTestSuite) TestShouldNotFilterWithoutTags() {
+func (suite *facesTestSuite) TestShouldNotRevealWithoutTags() {
 	var (
 		actual = &user{
 			Email:    "foo&bar.com",
@@ -70,20 +70,7 @@ func (suite *facesTestSuite) TestShouldNotFilterWithoutTags() {
 	assert.Equal(suite.T(), expected, actual)
 }
 
-func (suite *facesTestSuite) TestShouldPanicWithoutAnAddress() {
-	var (
-		u = user{
-			Email:    "foo&bar.com",
-			Password: "123",
-		}
-	)
-
-	assert.Panics(suite.T(), func() {
-		Reveal(u, "public")
-	})
-}
-
-func (suite *facesTestSuite) TestShouldFilter() {
+func (suite *facesTestSuite) TestShouldReveal() {
 	var (
 		actual = &user{
 			Email:    "foo&bar.com",
@@ -100,7 +87,65 @@ func (suite *facesTestSuite) TestShouldFilter() {
 	assert.Equal(suite.T(), expected, actual)
 }
 
-func (suite *facesTestSuite) TestShouldFilterMultipleTags() {
+func (suite *facesTestSuite) TestShouldRevealSlice() {
+	var (
+		actual = []*user{
+			{
+				Email:    "foo&bar.com",
+				Password: "123",
+			},
+			{
+				Email:    "john&doe.com",
+				Password: "456",
+			},
+		}
+		expected = []*user{
+			{
+				Email:    "foo&bar.com",
+				Password: "",
+			},
+			{
+				Email:    "john&doe.com",
+				Password: "",
+			},
+		}
+	)
+
+	Reveal(actual, "public")
+
+	assert.Equal(suite.T(), expected, actual)
+}
+
+func (suite *facesTestSuite) TestShouldRevealMapValues() {
+	var (
+		actual = map[string]*user{
+			"foo": {
+				Email:    "foo&bar.com",
+				Password: "123",
+			},
+			"bar": {
+				Email:    "john&doe.com",
+				Password: "456",
+			},
+		}
+		expected = map[string]*user{
+			"foo": {
+				Email:    "foo&bar.com",
+				Password: "",
+			},
+			"bar": {
+				Email:    "john&doe.com",
+				Password: "",
+			},
+		}
+	)
+
+	Reveal(actual, "public")
+
+	assert.Equal(suite.T(), expected, actual)
+}
+
+func (suite *facesTestSuite) TestShouldRevealMultipleTags() {
 	type identity struct {
 		FirstName string `faces:"private,public"`
 		LastName  string `faces:"confidential,private"`
@@ -125,7 +170,7 @@ func (suite *facesTestSuite) TestShouldFilterMultipleTags() {
 	assert.Equal(suite.T(), expected, actual)
 }
 
-func (suite *facesTestSuite) TestShouldFilterNestedStructure() {
+func (suite *facesTestSuite) TestShouldRevealNestedStructure() {
 
 	var (
 		actual = &admin{
@@ -151,7 +196,7 @@ func (suite *facesTestSuite) TestShouldFilterNestedStructure() {
 	assert.Equal(suite.T(), expected, actual)
 }
 
-func (suite *facesTestSuite) TestShouldFilterArrayOfStructures() {
+func (suite *facesTestSuite) TestShouldRevealArrayOfStructures() {
 	var (
 		actual = &team{
 			Users: []user{
@@ -188,7 +233,7 @@ func TestSuite(t *testing.T) {
 	suite.Run(t, new(facesTestSuite))
 }
 
-func BenchmarkFaces(b *testing.B) {
+func BenchmarkReveal(b *testing.B) {
 	u := &user{
 		Email:    "foo&bar.com",
 		Password: "123",
@@ -199,7 +244,41 @@ func BenchmarkFaces(b *testing.B) {
 	}
 }
 
-func BenchmarkFacesWithNestedStructure(b *testing.B) {
+func BenchmarkRevealWithSlice(b *testing.B) {
+	users := []user{
+		{
+			Email:    "foo&bar.com",
+			Password: "123",
+		},
+		{
+			Email:    "john&doe.com",
+			Password: "456",
+		},
+	}
+
+	for n := 0; n < b.N; n++ {
+		Reveal(users, "private")
+	}
+}
+
+func BenchmarkRevealWithMap(b *testing.B) {
+	users := map[string]*user{
+		"foo": {
+			Email:    "foo&bar.com",
+			Password: "123",
+		},
+		"bar": {
+			Email:    "john&doe.com",
+			Password: "456",
+		},
+	}
+
+	for n := 0; n < b.N; n++ {
+		Reveal(users, "private")
+	}
+}
+
+func BenchmarkRevealWithNestedStructure(b *testing.B) {
 	a := &admin{
 		Name: "Foo",
 		Role: "Administrator",
@@ -214,7 +293,7 @@ func BenchmarkFacesWithNestedStructure(b *testing.B) {
 	}
 }
 
-func BenchmarkFacesWithArrayOfStructures(b *testing.B) {
+func BenchmarkRevealWithArrayOfStructures(b *testing.B) {
 	t := &team{
 		Users: []user{
 			{
@@ -233,7 +312,7 @@ func BenchmarkFacesWithArrayOfStructures(b *testing.B) {
 	}
 }
 
-func BenchmarkFacesWithoutTags(b *testing.B) {
+func BenchmarkRevealWithoutTags(b *testing.B) {
 	u := &user{
 		Email:    "foo&bar.com",
 		Password: "123",
@@ -244,7 +323,7 @@ func BenchmarkFacesWithoutTags(b *testing.B) {
 	}
 }
 
-func BenchmarkFacesWithSomethingElseThanAStructure(b *testing.B) {
+func BenchmarkRevealWithSomethingElseThanAStructure(b *testing.B) {
 	m := &map[string]string{
 		"a": "b",
 	}
