@@ -10,6 +10,17 @@ const filterTag = "faces"
 
 // Reveal reveals a face in the input based on tags. It panics if the input
 // parameter is not an adress to a structure.
+//
+// Examples of struct field tags and their meanings:
+//
+//   // This field will be revealed with the public face of the structure.
+//   Field string `faces:"public"`
+//
+//   // This field will be revealed with the private and the public faces of the structure.
+//   Field string `faces:"private,public"`
+//
+//   // This field will be revealed with any faces of the structure.
+//   Field string
 func Reveal(input interface{}, tags ...string) {
 	if tags == nil {
 		return
