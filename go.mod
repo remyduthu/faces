@@ -1,4 +1,4 @@
-module github.com/remydt/faces
+module github.com/remyduthu/faces
 
 go 1.16
 

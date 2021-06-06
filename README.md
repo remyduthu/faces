@@ -1,6 +1,6 @@
 # 🌓 Faces
 
-[![GoReference](https://pkg.go.dev/badge/github.com/remydt/faces.svg)](https://pkg.go.dev/github.com/remydt/faces)
+[![GoReference](https://pkg.go.dev/badge/github.com/remyduthu/faces.svg)](https://pkg.go.dev/github.com/remyduthu/faces)
 
 Faces filters a structure using field tags. This is useful when you want to
 create several versions of the same structure without duplicating it. A use case
@@ -69,7 +69,7 @@ updates.
 ```
 goos: darwin
 goarch: amd64
-pkg: github.com/remydt/faces
+pkg: github.com/remyduthu/faces
 cpu: Intel(R) Core(TM) i7-8559U CPU @ 2.70GHz
 BenchmarkReveal-8                                  	 5044090	       243.2 ns/op	      40 B/op	       4 allocs/op
 BenchmarkRevealWithSlice-8                         	 2272608	       515.0 ns/op	     104 B/op	       9 allocs/op
