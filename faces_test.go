@@ -171,7 +171,6 @@ func (suite *facesTestSuite) TestShouldRevealMultipleTags() {
 }
 
 func (suite *facesTestSuite) TestShouldRevealNestedStructure() {
-
 	var (
 		actual = &admin{
 			Name: "Foo",
@@ -187,6 +186,58 @@ func (suite *facesTestSuite) TestShouldRevealNestedStructure() {
 			user: user{
 				Email:    "foo&bar.com",
 				Password: "",
+			},
+		}
+	)
+
+	Reveal(actual, "public")
+
+	assert.Equal(suite.T(), expected, actual)
+}
+
+func (suite *facesTestSuite) TestShouldRevealDeeplyNestedStructures() {
+	type roomDetails struct {
+		Name        string `faces:"private"`
+		Description string `faces:"public"`
+	}
+
+	type room struct {
+		Information *roomDetails
+	}
+
+	type house struct {
+		Rooms []room
+	}
+
+	var (
+		actual = &house{
+			Rooms: []room{
+				{
+					Information: &roomDetails{
+						Name:        "Bedroom",
+						Description: "A place to sleep",
+					},
+				},
+				{
+					Information: &roomDetails{
+						Name:        "Living Room",
+						Description: "A place to live",
+					},
+				},
+			},
+		}
+		expected = &house{
+			Rooms: []room{
+				{
+					Information: &roomDetails{
+						Description: "A place to sleep",
+					},
+				},
+				{
+					Information: &roomDetails{
+						Description: "A place to live",
+					},
+				},
 			},
 		}
 	)

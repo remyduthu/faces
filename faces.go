@@ -8,6 +8,27 @@ import (
 
 const revealTag = "faces"
 
+var (
+	revealableTypes = []reflect.Kind{
+		reflect.Bool,
+		reflect.Int,
+		reflect.Int8,
+		reflect.Int16,
+		reflect.Int32,
+		reflect.Int64,
+		reflect.Uint,
+		reflect.Uint8,
+		reflect.Uint16,
+		reflect.Uint32,
+		reflect.Uint64,
+		reflect.Float32,
+		reflect.Float64,
+		reflect.Complex64,
+		reflect.Complex128,
+		reflect.String,
+	}
+)
+
 // Reveal reveals faces of the input based on tags. The input can be:
 //
 // - A pointer to a structure. In this case, the function will be applied
@@ -68,11 +89,7 @@ func revealValue(v reflect.Value, tags ...string) {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
 
-		// Recursively reveal nested objects
-		if field.Kind() == reflect.Array ||
-			field.Kind() == reflect.Map ||
-			field.Kind() == reflect.Slice ||
-			field.Kind() == reflect.Struct {
+		if !revealable(field) {
 			revealValue(field, tags...)
 		}
 
@@ -93,6 +110,16 @@ func revealValue(v reflect.Value, tags ...string) {
 			field.Set(reflect.New(structField.Type).Elem())
 		}
 	}
+}
+
+func revealable(v reflect.Value) bool {
+	for _, revealableType := range revealableTypes {
+		if revealableType == v.Kind() {
+			return true
+		}
+	}
+
+	return false
 }
 
 func matchTags(fieldTags []string, tags []string) bool {
